@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VLearn — Option C</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6F4EF; --paper-raised: #FFFFFF;
+    --ink: #1B1F3B; --ink-soft: #5A5F7D; --ink-faint: #9498AC;
+    --line: #E4E0D6; --vin-blue: #2A4B7C;
+    --green-soft: #E4F1EC; --violet: #6C63FF; --violet-soft: #ECEBFF;
+    --radius: 14px; --radius-sm: 8px;
+    --font-display: 'Fraunces', serif; --font-body: 'Inter', sans-serif; --font-mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-body); margin: 0; padding: 32px 20px 80px; }
+  .wrap { max-width: 800px; margin: 0 auto; }
+  .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+
+  /* topbar / facilitator controls */
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .top-actions { display: flex; gap: 8px; }
+  .ghost-btn {
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft);
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 14px; cursor: pointer;
+  }
+  .ghost-btn:hover { border-color: var(--ink-faint); }
+  .fac-panel { display: none; background: var(--ink); color: #EDEDF5; border-radius: var(--radius); padding: 16px 18px; margin-bottom: 18px; font-size: 13.5px; line-height: 1.55; }
+  .fac-panel.show { display: block; }
+  .fac-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #8F94C4; margin-bottom: 10px; }
+  .fac-row { margin-bottom: 6px; }
+  .fac-row:last-child { margin-bottom: 0; }
+  .fac-panel b { color: #fff; }
+  .fac-panel span#facDwell { font-family: var(--font-mono); color: #C7C4FF; }
+
+  /* Frame & Slide */
+  .frame { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 12px 32px -12px rgba(27,31,59,0.22); padding: 20px; position: relative;}
+  .task-banner { background: var(--green-soft); border: 1px solid #CFE7DD; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: #0B5E48; margin-bottom: 24px; display: flex; gap: 8px; }
+  
+  /* Scrollable Container */
+  .scroll-window {
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    height: 380px; overflow-y: auto; scroll-behavior: smooth; position: relative;
+    box-shadow: inset 0 -20px 20px -20px rgba(0,0,0,0.1);
+  }
+  
+  .slide-header { background: var(--vin-blue); color: #fff; padding: 16px 20px; font-weight: 600; font-size: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 5;}
+  .slide-header .logo { font-size: 12px; font-family: var(--font-mono); opacity: 0.8;}
+  
+  /* Make content tall enough to require scrolling */
+  .slide-content { padding: 24px 24px 100px 24px; }
+  
+  table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+  th, td { padding: 16px 12px; text-align: left; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  th { font-weight: 600; color: var(--ink); border-bottom: 2px solid var(--ink); }
+  td { color: var(--ink-soft); line-height: 1.5; }
+  td:first-child { font-weight: 600; color: var(--ink); width: 15%; }
+  
+  .slide-note { background: #F0F2F5; padding: 16px; border-left: 4px solid var(--vin-blue); font-size: 14px; line-height: 1.6; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-bottom: 20px;}
+
+  /* AI Proactive Bubble */
+  .bubble {
+    display: none; position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%); width: 90%; max-width: 400px;
+    background: var(--violet-soft); border: 1px solid #D6D3FF; border-radius: 16px;
+    padding: 16px; box-shadow: 0 10px 26px -10px rgba(108,99,255,.4); animation: riseIn .3s ease; z-index: 10;
+  }
+  @keyframes riseIn { from { transform: translate(-50%, 15px) scale(.98); opacity: 0; } to { transform: translate(-50%, 0) scale(1); opacity: 1; } }
+  .bubble.show { display: block; }
+  .card-eyebrow { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--violet); margin-bottom: 10px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .evidence-tag { font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 10px; background: #fff; color: var(--violet); border: 1px solid #D6D3FF; }
+  .bubble p { margin: 0 0 14px; font-size: 13.5px; color: #2E2A6E; line-height: 1.55; }
+  .btn-row { display: flex; gap: 10px; }
+  .btn { font-family: var(--font-body); font-weight: 600; font-size: 13px; border-radius: 999px; padding: 8px 16px; cursor: pointer; border: 1px solid transparent; }
+  .btn-primary { background: var(--violet); color: #fff; }
+  .btn-ghost { background: transparent; color: #2E2A6E; border-color: #C0BFFF; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="eyebrow">VLearn · Bản 3</div>
+    <div class="top-actions">
+      <button class="ghost-btn" onclick="resetC()">↺ Reset</button>
+      <button class="ghost-btn" onclick="toggleFac()">👁 Facilitator notes</button>
+    </div>
+  </div>
+
+  <div class="fac-panel" id="facPanel">
+    <div class="fac-label">Option C — AI chủ động phát hiện (dwell-time trigger)</div>
+    <div class="fac-row"><b>Mechanism:</b> Nếu tester ở lại slide này quá 15 giây mà chưa tương tác, AI chủ động đề xuất giải thích.</div>
+    <div class="fac-row"><b>Live dwell (chỉ facilitator thấy):</b> <span id="facDwell">0s / 15s</span></div>
+    <div class="fac-row"><b>We expect the tester to:</b> đọc bảng, có thể ở lại lâu vì đang cố hiểu nội dung.</div>
+    <div class="fac-row"><b>Watch for:</b> phản ứng khi bubble xuất hiện bất ngờ sau ~15s (ngạc nhiên/khó chịu/thấy hữu ích); có đọc evidence tag không; chọn "Xem" hay "Không, cảm ơn".</div>
+    <div class="fac-row"><b>Do not explain:</b> không nói trước rằng hệ thống đang đếm thời gian ở lại của bạn.</div>
+  </div>
+
+  <div class="frame">
+    <div class="task-banner">🎯 <span>Bạn đang học và gặp một khái niệm trong bảng chưa rõ nghĩa. Hãy tìm cách hiểu khái niệm đó để tiếp tục bài học mà không bị mất mạch.</span></div>
+    
+    <div class="scroll-window" id="scrollArea">
+      <div class="slide-header">
+        <span>MVE, MVP, PoC: Khác Nhau Ở Mục Tiêu</span>
+        <span class="logo">✦ PRODUCT MGT</span>
+      </div>
+      <div class="slide-content">
+        <table>
+          <thead>
+            <tr><th>Mức</th><th>Mục tiêu chính</th><th>Câu hỏi cần trả lời</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>MVE</td><td>test giả định giá trị nhanh nhất</td><td>user có thật sự muốn thứ này không?</td></tr>
+            <tr><td>MVP</td><td>ship phiên bản nhỏ có thể dùng được<br><br><br></td><td>workflow có vận hành được không?<br><br><br></td></tr>
+            <tr><td>PoC</td><td>giảm bất định cho stakeholder / sponsor</td><td>có đáng đầu tư thêm không?</td></tr>
+          </tbody>
+        </table>
+        <div class="slide-note">Đừng dùng 3 từ này lẫn lộn. Nếu mục tiêu là học nhanh, hãy ưu tiên <strong>MVE</strong>. Nếu mục tiêu là xin phê duyệt tiếp, hãy thiết kế <strong>PoC</strong>.</div>
+        <div style="height: 150px; text-align: center; color: #bbb; padding-top: 40px; border-top: 1px dashed #ddd;">(Không gian cuộn thêm)</div>
+      </div>
+    </div>
+
+    <!-- AI Bubble -->
+    <div class="bubble" id="aiBubble">
+      <div class="card-eyebrow"><span class="dot"></span> AI chủ động gợi ý</div>
+      <div class="evidence-tag">Vì bạn đã ở lại slide này hơn 15 giây</div>
+      <p>Có vẻ 3 khái niệm MVE, MVP và PoC hơi dễ nhầm lẫn. Bạn có muốn xem bảng tóm tắt dễ hiểu hơn không?</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="acceptHelp()">Xem giải thích</button>
+        <button class="btn btn-ghost" onclick="dismissHelp()">Không, cảm ơn</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const scrollArea = document.getElementById('scrollArea');
+  const bubble = document.getElementById('aiBubble');
+  const bubbleDefaultHTML = bubble.innerHTML;
+
+  let dwellSeconds = 0;
+  let dwellInterval = null;
+  let hasTriggered = false;
+
+  function startDwellTimer() {
+    clearInterval(dwellInterval);
+    dwellSeconds = 0;
+    hasTriggered = false;
+    updateFacDwell();
+    dwellInterval = setInterval(() => {
+      if (hasTriggered) { clearInterval(dwellInterval); return; }
+      dwellSeconds++;
+      updateFacDwell();
+      if (dwellSeconds >= 15) {
+        bubble.classList.add('show');
+        hasTriggered = true;
+        clearInterval(dwellInterval);
+      }
+    }, 1000);
+  }
+
+  function updateFacDwell() {
+    const el = document.getElementById('facDwell');
+    if (el) el.textContent = hasTriggered ? "Đã trigger" : `${dwellSeconds}s / 15s`;
+  }
+
+  function acceptHelp() {
+    bubble.innerHTML = `
+      <div class="card-eyebrow"><span class="dot"></span> AI Giải thích</div>
+      <p><b>MVE:</b> Làm rẻ nhất, nhanh nhất để biết User có cần không.<br>
+         <b>MVP:</b> Đủ tính năng để User dùng thử luồng chính.<br>
+         <b>PoC:</b> Dùng để báo cáo cho sếp/nhà đầu tư xem nó có khả thi không.</p>
+      <div class="btn-row"><button class="btn btn-ghost" onclick="dismissHelp()">Đóng</button></div>
+    `;
+  }
+
+  function dismissHelp() {
+    bubble.classList.remove('show');
+  }
+
+  function resetC() {
+    bubble.classList.remove('show');
+    bubble.innerHTML = bubbleDefaultHTML;
+    scrollArea.scrollTop = 0;
+    startDwellTimer();
+  }
+
+  function toggleFac() {
+    document.getElementById('facPanel').classList.toggle('show');
+  }
+
+  window.addEventListener('load', startDwellTimer);
+</script>
+</body>
+</html>

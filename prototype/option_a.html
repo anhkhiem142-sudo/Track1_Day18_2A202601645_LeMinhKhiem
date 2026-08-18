@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VLearn — Option A</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6F4EF; --paper-raised: #FFFFFF;
+    --ink: #1B1F3B; --ink-soft: #5A5F7D; --ink-faint: #9498AC;
+    --line: #E4E0D6; --vin-blue: #2A4B7C;
+    --green-soft: #E4F1EC; --violet: #6C63FF; --amber: #B8781F; --amber-soft: #FBF1DF;
+    --radius: 14px; --radius-sm: 8px;
+    --font-display: 'Fraunces', serif; --font-body: 'Inter', sans-serif; --font-mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-body); margin: 0; padding: 32px 20px 80px; }
+  .wrap { max-width: 800px; margin: 0 auto; }
+  .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+
+  /* topbar / facilitator controls */
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .top-actions { display: flex; gap: 8px; }
+  .ghost-btn {
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft);
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 14px; cursor: pointer;
+  }
+  .ghost-btn:hover { border-color: var(--ink-faint); }
+  .fac-panel { display: none; background: var(--ink); color: #EDEDF5; border-radius: var(--radius); padding: 16px 18px; margin-bottom: 18px; font-size: 13.5px; line-height: 1.55; }
+  .fac-panel.show { display: block; }
+  .fac-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #8F94C4; margin-bottom: 10px; }
+  .fac-row { margin-bottom: 6px; }
+  .fac-row:last-child { margin-bottom: 0; }
+  .fac-panel b { color: #fff; }
+
+  /* Frame & Slide */
+  .frame { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 12px 32px -12px rgba(27,31,59,0.22); padding: 20px; position: relative; min-height: 500px;}
+  .task-banner { background: var(--green-soft); border: 1px solid #CFE7DD; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: #0B5E48; margin-bottom: 24px; display: flex; gap: 8px; }
+  
+  .slide-container { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .slide-header { background: var(--vin-blue); color: #fff; padding: 16px 20px; font-weight: 600; font-size: 18px; display: flex; justify-content: space-between; align-items: center;}
+  .slide-header .logo { font-size: 12px; font-family: var(--font-mono); letter-spacing: 1px; opacity: 0.8;}
+  .slide-content { padding: 24px; }
+  
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  th { font-weight: 600; color: var(--ink); border-bottom: 2px solid var(--ink); }
+  td { color: var(--ink-soft); line-height: 1.5; }
+  td:first-child { font-weight: 600; color: var(--ink); width: 15%; cursor: text; }
+  
+  .slide-note { background: #F0F2F5; padding: 16px; border-left: 4px solid var(--vin-blue); font-size: 14px; line-height: 1.6; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+
+  /* Selection Tooltip */
+  #askTooltip {
+    position: absolute; display: none; background: var(--ink); color: #fff; border: none; border-radius: 999px;
+    padding: 8px 16px; font-family: var(--font-body); font-weight: 600; font-size: 13px; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2); transform: translate(-50%, -120%); z-index: 10; align-items: center; gap: 6px;
+  }
+  #askTooltip:hover { background: #262B4E; }
+
+  /* Modal */
+  .overlay { position: absolute; inset: 0; background: rgba(27,31,59,.32); display: none; align-items: flex-end; justify-content: center; border-radius: var(--radius); z-index: 20; overflow: hidden;}
+  .overlay.show { display: flex; }
+  .card { background: #fff; width: 100%; border-radius: 16px 16px 0 0; padding: 22px 22px 24px; animation: slideUp .22s ease; box-shadow: 0 -14px 30px -12px rgba(0,0,0,.25); display: flex; flex-direction: column; max-height: 80%;}
+  @keyframes slideUp { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .card-eyebrow { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--violet); margin-bottom: 14px; flex-shrink: 0;}
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  
+  /* Chat Interface */
+  .chat-history { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; padding-right: 4px; }
+  .chat-history::-webkit-scrollbar { width: 4px; }
+  .chat-history::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  
+  .chat-msg { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.55; max-width: 90%; }
+  .chat-msg h3 { font-family: var(--font-display); font-weight: 600; font-size: 16px; margin: 0 0 8px; color: var(--ink);}
+  .chat-msg.ai { background: #F0F2F5; color: var(--ink); border-bottom-left-radius: 4px; align-self: flex-start; }
+  .chat-msg.user { background: var(--ink); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+
+  .evidence-tag {
+    font-family: var(--font-mono); font-size: 11px;
+    background: var(--amber-soft); color: var(--amber);
+    border: 1px solid #F0DCAF; border-radius: 7px;
+    padding: 5px 9px; display: inline-block; margin-bottom: 8px;
+  }
+  .quick-reply { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .quick-btn {
+    font-family: var(--font-body); font-weight: 600; font-size: 12.5px;
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 14px; cursor: pointer; color: var(--ink);
+  }
+  .quick-btn:hover { background: #F0F2F5; }
+  
+  .chat-input-area { display: flex; gap: 8px; margin-bottom: 12px; flex-shrink: 0; }
+  .chat-input { flex: 1; padding: 12px 16px; border: 1px solid var(--line); border-radius: 999px; font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color 0.2s;}
+  .chat-input:focus { border-color: var(--ink-soft); }
+  .btn-send { background: var(--vin-blue); color: #fff; border: none; border-radius: 999px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;}
+  .btn-send:hover { background: #1B3254; }
+  
+  .btn-primary { font-family: var(--font-body); font-weight: 600; font-size: 14px; border-radius: 999px; padding: 12px; cursor: pointer; border: none; background: #fff; color: var(--ink); border: 1px solid var(--line); width: 100%; transition: background 0.2s;}
+  .btn-primary:hover { background: #F0F2F5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="eyebrow">VLearn · Bản 1</div>
+    <div class="top-actions">
+      <button class="ghost-btn" onclick="resetA()">↺ Reset</button>
+      <button class="ghost-btn" onclick="toggleFac()">👁 Facilitator notes</button>
+    </div>
+  </div>
+
+  <div class="fac-panel" id="facPanel">
+    <div class="fac-label">Option A — Highlight-to-ask, AI chẩn đoán trước khi giải thích</div>
+    <div class="fac-row"><b>Mechanism:</b> Tester bôi đen thuật ngữ → AI hỏi 1 câu chẩn đoán ngắn → chọn mức giải thích phù hợp (ngắn/đầy đủ) → có thể chat hỏi thêm.</div>
+    <div class="fac-row"><b>We expect the tester to:</b> tự nghĩ ra cách bôi đen/chọn thuật ngữ chưa hiểu, trả lời câu hỏi chẩn đoán, đọc giải thích.</div>
+    <div class="fac-row"><b>Watch for:</b> tester có tự tìm ra thao tác bôi đen không (nếu không → ghi nhận breakdown); có đọc evidence tag không; có dùng ô chat hỏi thêm không.</div>
+    <div class="fac-row"><b>Do not explain:</b> không nói trước cách bôi đen hoặc cách AI hoạt động.</div>
+  </div>
+
+  <div class="frame" id="frameArea">
+    <div class="task-banner">🎯 <span>Bạn đang học và gặp một khái niệm trong bảng chưa rõ nghĩa. Hãy tìm cách hiểu khái niệm đó để tiếp tục bài học mà không bị mất mạch.</span></div>
+    
+    <div class="slide-container">
+      <div class="slide-header">
+        <span>MVE, MVP, PoC: Khác Nhau Ở Mục Tiêu</span>
+        <span class="logo">✦ PRODUCT MGT</span>
+      </div>
+      <div class="slide-content">
+        <table>
+          <thead>
+            <tr><th>Mức</th><th>Mục tiêu chính</th><th>Câu hỏi cần trả lời</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>MVE</td><td>test giả định giá trị nhanh nhất</td><td>user có thật sự muốn thứ này không?</td></tr>
+            <tr><td>MVP</td><td>ship phiên bản nhỏ có thể dùng được</td><td>workflow có vận hành được không?</td></tr>
+            <tr><td>PoC</td><td>giảm bất định cho stakeholder / sponsor</td><td>có đáng đầu tư thêm không?</td></tr>
+          </tbody>
+        </table>
+        <div class="slide-note">Đừng dùng 3 từ này lẫn lộn. Nếu mục tiêu là học nhanh, hãy ưu tiên <strong>MVE</strong>. Nếu mục tiêu là xin phê duyệt tiếp, hãy thiết kế <strong>PoC</strong>.</div>
+      </div>
+    </div>
+
+    <!-- Nút Tooltip nổi lên khi bôi đen -->
+    <button id="askTooltip">Tôi vẫn chưa hiểu</button>
+
+    <!-- Modal AI Chat -->
+    <div class="overlay" id="aiModal">
+      <div class="card">
+        <div class="card-eyebrow"><span class="dot"></span> Trợ lý AI</div>
+        
+        <div class="chat-history" id="chatHistory">
+          <!-- Nội dung chat sẽ được JS render vào đây -->
+        </div>
+
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" id="aiChatInput" placeholder="Hỏi thêm chi tiết về khái niệm này..." onkeypress="handleEnter(event)">
+          <button class="btn-send" onclick="sendMsg()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
+        </div>
+        
+        <button class="btn-primary" onclick="closeModal()">Đã hiểu, quay lại bài giảng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tooltip = document.getElementById('askTooltip');
+  const frame = document.getElementById('frameArea');
+  const modal = document.getElementById('aiModal');
+  const chatHistory = document.getElementById('chatHistory');
+  const chatInput = document.getElementById('aiChatInput');
+  let selectedTerm = '';
+
+  const defsLong = {
+    'MVE': 'MVE (Minimum Viable Experience): Tập trung vào trải nghiệm tối thiểu nhất để kiểm chứng xem người dùng có thực sự cần giải pháp của bạn hay không, thường chưa cần code hệ thống hoàn chỉnh (vd: dùng form, mockup).',
+    'MVP': 'MVP (Minimum Viable Product): Sản phẩm có lõi chức năng cơ bản nhất nhưng đã có thể hoạt động được (workflow chạy mượt) để người dùng sử dụng và trả feedback.',
+    'POC': 'PoC (Proof of Concept): Bằng chứng khái niệm. Dùng để chứng minh với nhà đầu tư (stakeholder/sponsor) rằng công nghệ hoặc ý tưởng này khả thi để rót thêm ngân sách.'
+  };
+  const defsShort = {
+    'MVE': 'MVE: bản trải nghiệm tối thiểu, dùng để test xem user có thật sự cần giải pháp này không.',
+    'MVP': 'MVP: bản sản phẩm tối thiểu nhưng dùng được, để test xem workflow có vận hành mượt không.',
+    'POC': 'PoC: bằng chứng khả thi, dùng để thuyết phục stakeholder/nhà đầu tư rót thêm ngân sách.'
+  };
+
+  // Lắng nghe sự kiện chọn text
+  document.addEventListener('mouseup', function(e) {
+    const selection = window.getSelection();
+    const text = selection.toString().trim().toUpperCase();
+
+    if (text === 'MVE' || text === 'MVP' || text === 'POC') {
+      selectedTerm = text;
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const frameRect = frame.getBoundingClientRect();
+      
+      tooltip.style.display = 'flex';
+      tooltip.style.left = (rect.left - frameRect.left + rect.width / 2) + 'px';
+      tooltip.style.top = (rect.top - frameRect.top) + 'px';
+    } else {
+      tooltip.style.display = 'none';
+    }
+  });
+
+  document.addEventListener('mousedown', function(e) {
+    if (e.target !== tooltip && !modal.contains(e.target)) {
+      tooltip.style.display = 'none';
+    }
+  });
+
+  // Mở modal -> bắt đầu bằng bước chẩn đoán, chưa đưa giải thích ngay
+  tooltip.addEventListener('click', function() {
+    modal.classList.add('show');
+    tooltip.style.display = 'none';
+    window.getSelection().removeAllRanges();
+    startDiagnosis();
+  });
+
+  function startDiagnosis() {
+    chatHistory.innerHTML = `
+      <div class="chat-msg ai">
+        <h3>Trước khi giải thích...</h3>
+        Bạn đã từng nghe thuật ngữ <b>${selectedTerm}</b> ở đâu trước đây chưa?
+        <div class="quick-reply">
+          <button class="quick-btn" onclick="answerDiagnosis('yes')">Rồi, mình từng nghe</button>
+          <button class="quick-btn" onclick="answerDiagnosis('no')">Chưa, lần đầu nghe</button>
+        </div>
+      </div>`;
+    setTimeout(() => chatInput.focus(), 100);
+  }
+
+  function answerDiagnosis(ans) {
+    const userText = ans === 'yes' ? 'Rồi, mình từng nghe' : 'Chưa, lần đầu nghe';
+    chatHistory.innerHTML += `<div class="chat-msg user">${userText}</div>`;
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    setTimeout(() => {
+      const evidence = ans === 'yes'
+        ? 'Dựa trên câu trả lời vừa rồi — bạn đã quen thuật ngữ này'
+        : 'Dựa trên câu trả lời vừa rồi — đây là lần đầu bạn gặp thuật ngữ này';
+      const def = ans === 'yes' ? defsShort[selectedTerm] : defsLong[selectedTerm];
+      chatHistory.innerHTML += `
+        <div class="chat-msg ai">
+          <div class="evidence-tag">${evidence}</div>
+          <h3>Giải thích: ${selectedTerm}</h3>
+          ${def}
+        </div>`;
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }, 500);
+  }
+
+  function closeModal() {
+    modal.classList.remove('show');
+    chatInput.value = '';
+  }
+
+  function resetA() {
+    modal.classList.remove('show');
+    chatHistory.innerHTML = '';
+    chatInput.value = '';
+    tooltip.style.display = 'none';
+    window.getSelection().removeAllRanges();
+  }
+
+  function toggleFac() {
+    document.getElementById('facPanel').classList.toggle('show');
+  }
+
+  // Xử lý gửi tin nhắn tiếp theo (sau bước chẩn đoán + giải thích)
+  function handleEnter(e) {
+    if (e.key === 'Enter') sendMsg();
+  }
+
+  function sendMsg() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    chatHistory.innerHTML += `<div class="chat-msg user">${text}</div>`;
+    chatInput.value = '';
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    setTimeout(() => {
+      chatHistory.innerHTML += `
+        <div class="chat-msg ai">
+          Về câu hỏi "<b>${text}</b>": mình sẽ giải thích thêm dựa trên bối cảnh của khái niệm <b>${selectedTerm}</b> mà bạn vừa hỏi ở trên nhé.
+        </div>`;
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }, 600);
+  }
+</script>
+</body>
+</html>

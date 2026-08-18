@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VLearn — Option B</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6F4EF; --paper-raised: #FFFFFF;
+    --ink: #1B1F3B; --ink-soft: #5A5F7D; --ink-faint: #9498AC;
+    --line: #E4E0D6; --vin-blue: #2A4B7C;
+    --green-soft: #E4F1EC; --amber: #B8781F; 
+    --radius: 14px; --radius-sm: 8px;
+    --font-display: 'Fraunces', serif; --font-body: 'Inter', sans-serif; --font-mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-body); margin: 0; padding: 32px 20px 80px; }
+  .wrap { max-width: 800px; margin: 0 auto; }
+  .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+
+  /* topbar / facilitator controls */
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .top-actions { display: flex; gap: 8px; }
+  .ghost-btn {
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft);
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 14px; cursor: pointer;
+  }
+  .ghost-btn:hover { border-color: var(--ink-faint); }
+  .fac-panel { display: none; background: var(--ink); color: #EDEDF5; border-radius: var(--radius); padding: 16px 18px; margin-bottom: 18px; font-size: 13.5px; line-height: 1.55; }
+  .fac-panel.show { display: block; }
+  .fac-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #8F94C4; margin-bottom: 10px; }
+  .fac-row { margin-bottom: 6px; }
+  .fac-row:last-child { margin-bottom: 0; }
+  .fac-panel b { color: #fff; }
+
+  /* Frame & Slide */
+  .frame { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 12px 32px -12px rgba(27,31,59,0.22); padding: 20px; position: relative; min-height: 500px; overflow: hidden;}
+  .task-banner { background: var(--green-soft); border: 1px solid #CFE7DD; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: #0B5E48; margin-bottom: 24px; display: flex; gap: 8px; }
+  
+  .slide-container { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .slide-header { background: var(--vin-blue); color: #fff; padding: 16px 20px; font-weight: 600; font-size: 18px; display: flex; justify-content: space-between; align-items: center;}
+  .slide-header .logo { font-size: 12px; font-family: var(--font-mono); letter-spacing: 1px; opacity: 0.8;}
+  .slide-content { padding: 24px; }
+  
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  th { font-weight: 600; color: var(--ink); border-bottom: 2px solid var(--ink); }
+  td { color: var(--ink-soft); line-height: 1.5; }
+  td:first-child { font-weight: 600; color: var(--ink); width: 15%; position: relative;}
+  
+  .slide-note { background: #F0F2F5; padding: 16px; border-left: 4px solid var(--vin-blue); font-size: 14px; line-height: 1.6; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+
+  /* Notebook Button */
+  .fab-notebook {
+    position: absolute; bottom: 20px; right: 20px; background: #fff; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 999px; padding: 12px 18px; font-family: var(--font-body);
+    font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+    box-shadow: 0 8px 20px -6px rgba(0,0,0,.15); transition: background 0.2s;
+  }
+  .fab-notebook:hover { background: #F0F2F5; }
+
+  /* Drawer / Popover Notebook */
+  .notebook-panel {
+    position: absolute; top: 0; right: -100%; width: 320px; height: 100%; background: #fff;
+    border-left: 1px solid var(--line); box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+    transition: right 0.3s ease; display: flex; flex-direction: column; z-index: 10;
+  }
+  .notebook-panel.show { right: 0; }
+  .nb-header { padding: 18px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .nb-header h3 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 6px; }
+  .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink-soft); }
+  .nb-content { padding: 20px; overflow-y: auto; flex: 1; }
+  .nb-term { margin-bottom: 20px; }
+  .nb-term-title { font-family: var(--font-mono); font-weight: 600; font-size: 14px; color: var(--vin-blue); margin-bottom: 6px;}
+  .nb-term-desc { font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="eyebrow">VLearn · Bản 2</div>
+    <div class="top-actions">
+      <button class="ghost-btn" onclick="resetB()">↺ Reset</button>
+      <button class="ghost-btn" onclick="toggleFac()">👁 Facilitator notes</button>
+    </div>
+  </div>
+
+  <div class="fac-panel" id="facPanel">
+    <div class="fac-label">Option B — Sổ tay tĩnh, không AI</div>
+    <div class="fac-row"><b>Mechanism:</b> Nội dung giải thích viết sẵn, không cá nhân hoá, không có bước suy luận nào.</div>
+    <div class="fac-row"><b>We expect the tester to:</b> tự tìm và bấm nút "Sổ tay bài học".</div>
+    <div class="fac-row"><b>Watch for:</b> tester có tìm ra nút không (nếu không → ghi nhận breakdown); phản ứng khi thấy nội dung tĩnh, có tin tưởng nó hơn/kém so với các bản khác không.</div>
+    <div class="fac-row"><b>Do not explain:</b> không nói trước rằng đây không phải AI — để tester tự nhận ra.</div>
+  </div>
+
+  <div class="frame">
+    <div class="task-banner">🎯 <span>Bạn đang học và gặp một khái niệm trong bảng chưa rõ nghĩa. Hãy tìm cách hiểu khái niệm đó để tiếp tục bài học mà không bị mất mạch.</span></div>
+    
+    <div class="slide-container">
+      <div class="slide-header">
+        <span>MVE, MVP, PoC: Khác Nhau Ở Mục Tiêu</span>
+        <span class="logo">✦ PRODUCT MGT</span>
+      </div>
+      <div class="slide-content">
+        <table>
+          <thead>
+            <tr><th>Mức</th><th>Mục tiêu chính</th><th>Câu hỏi cần trả lời</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>MVE</td><td>test giả định giá trị nhanh nhất</td><td>user có thật sự muốn thứ này không?</td></tr>
+            <tr><td>MVP</td><td>ship phiên bản nhỏ có thể dùng được</td><td>workflow có vận hành được không?</td></tr>
+            <tr><td>PoC</td><td>giảm bất định cho stakeholder / sponsor</td><td>có đáng đầu tư thêm không?</td></tr>
+          </tbody>
+        </table>
+        <div class="slide-note">Đừng dùng 3 từ này lẫn lộn. Nếu mục tiêu là học nhanh, hãy ưu tiên <strong>MVE</strong>. Nếu mục tiêu là xin phê duyệt tiếp, hãy thiết kế <strong>PoC</strong>.</div>
+      </div>
+    </div>
+
+    <!-- Notebook Button -->
+    <button class="fab-notebook" onclick="toggleNotebook()">📔 Sổ tay bài học</button>
+
+    <!-- Notebook Drawer -->
+    <div class="notebook-panel" id="notebookPanel">
+      <div class="nb-header">
+        <h3>📔 Sổ tay bài học</h3>
+        <button class="close-btn" onclick="toggleNotebook()">×</button>
+      </div>
+      <div class="nb-content">
+        <div class="nb-term">
+          <div class="nb-term-title">MVE (Min. Viable Experience)</div>
+          <p class="nb-term-desc">Kiểm chứng xem người dùng có thực sự cần thứ này hay không bằng cách tạo ra trải nghiệm tối thiểu nhất (chưa cần code backend).</p>
+        </div>
+        <div class="nb-term">
+          <div class="nb-term-title">MVP (Min. Viable Product)</div>
+          <p class="nb-term-desc">Sản phẩm cốt lõi nhất để test xem workflow có vận hành mượt mà ngoài thực tế không.</p>
+        </div>
+        <div class="nb-term">
+          <div class="nb-term-title">PoC (Proof of Concept)</div>
+          <p class="nb-term-desc">Chứng minh tính khả thi về công nghệ/logic với nhà đầu tư để xin phê duyệt làm tiếp.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleNotebook() {
+    document.getElementById('notebookPanel').classList.toggle('show');
+  }
+  function resetB() {
+    document.getElementById('notebookPanel').classList.remove('show');
+  }
+  function toggleFac() {
+    document.getElementById('facPanel').classList.toggle('show');
+  }
+</script>
+</body>
+</html>
