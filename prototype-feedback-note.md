@@ -1,27 +1,27 @@
-# Prototype Feedback Note — Lê Hà Hải Vân
+# Prototype Feedback Note — Lê Minh Khiêm
 
-**Tester/context:** TESTER_001, là một học viên trong khóa Đào tạo nhân tài AI thực chiến, bạn đang học lại slides cũ để ôn tập lại bài học.
+**Tester/context:** TESTER_003, là một học viên trong khóa Đào tạo nhân tài AI thực chiến.
 
 | Observation | Note |
 |---|---|
-| First action | Với option A, bạn đang đọc qua và bôi đen "đoạn văn" bạn đang thắc mắc. Với option B, bạn đọc lướt qua và bấm vào "Sổ tay bài học". Với option C, bạn scroll qua lại |
-| Chỗ dừng, do dự hoặc hiểu sai | Bạn đang bôi đen đoạn văn thay vì chỉ bôi đen khái niệm như trong mục đích ban đầu của nhóm |
-| Evidence được đọc hay bỏ qua | Evidence được quan tâm |
-| Cách tester sửa hoặc lấy lại control | Tester mất thêm một chút thời gian để có thể bôi đen chính xác khái niệm mà chúng tôi muốn giải thích |
-| Option được chọn | Option A và option B |
-| Lý do và trade-off | **Option A:** "mình muốn biết rõ những khái niệm nào được hỗ trợ AI trả lời, ví dụ cần highlight hoặc có gạch dưới ở khái niệm đó để mình biết khi bấm vào đó thì AI sẽ giải thích cho mình" + phản ứng thêm: "wow khá là hay haha". **Option B:** "mình chỉ mất 3s để biết nên tìm kiếm thông tin ở đâu". **Option C:** "hay đấy, mình thích ý tưởng này" |
-| Evidence chống lại kỳ vọng của nhóm | Nhóm từng giả định tester tự tìm ra thao tác bôi đen mà không cần gợi ý, tester này tìm ra được nhưng tester chủ động nói rõ cần thêm affordance trực quan (gạch dưới) mới thấy tự tin |
+| First action | Bấm được ngay vào mục "Sổ tay bài học" đối với option B, bối rối không biết làm gì khi ở option A và C |
+| Chỗ dừng, do dự hoặc hiểu sai | Option A không biết bôi đen ở đâu. Option C không biết phải làm gì để được hỗ trợ |
+| Evidence được đọc hay bỏ qua | Evidence được đọc |
+| Cách tester sửa hoặc lấy lại control | Bôi đen nhiều chỗ và cuối cùng thì trúng vào chính xác khái niệm |
+| Option được chọn | **B** — tester nói rõ: "mình thích giao diện này nhất, có vẻ khá tiện lợi" |
+| Lý do và trade-off | **Option A:** "mình muốn bôi đen thì AI sẽ hiện ra luôn giải thích chứ không phải để mình xác nhận qua bước hỏi trước". **Option B:** "mình thích giao diện này nhất, có vẻ khá tiện lợi". **Option C:** "liệu mình có bị làm phiền nếu nó cứ hiện ra như vậy không" |
+| Evidence chống lại kỳ vọng của nhóm | Bước chẩn đoán ở Option A được thiết kế có chủ đích (đúng solution directive gốc — AI chẩn đoán trước khi giải thích), nhưng tester coi đây là bước thừa gây chậm trải nghiệm — mâu thuẫn trực tiếp với giả định thiết kế ban đầu |
 
 ## Tách bốn lớp
 
 **OBSERVED** — Tester đã làm hoặc nói gì?
-> Về Option A: nói rõ muốn có dấu hiệu trực quan (highlight/gạch dưới) cho biết từ nào AI hỗ trợ, và có phản ứng tích cực bằng lời ("wow khá là hay haha") sau khi trải nghiệm. Về Option B: nói mất khoảng 3 giây để biết nên tìm thông tin ở đâu. Về Option C: nói thích ý tưởng.
+> Về Option A: muốn AI hiện giải thích ngay khi bôi đen, không cần bước hỏi/xác nhận trước. Về Option B: nói đây là giao diện thích nhất, thấy tiện lợi. Về Option C: đặt câu hỏi lo ngại về việc bị làm phiền nếu bubble cứ tự động hiện ra.
 
 **INTERPRETED** — Nhóm nghĩ điều đó có thể có nghĩa gì?
-> Nội dung/giá trị của Option A được đón nhận tốt, nhưng thiếu 1 tín hiệu UI (affordance) khiến tester không chắc chắn phải làm gì trước khi bôi đen. Với B, "3 giây" cho thấy tốc độ định hướng là điểm mạnh rõ rệt của cơ chế tra cứu tĩnh. Với C, phản hồi ngắn gọn tích cực nhưng chưa đủ chi tiết để biết cụ thể điều gì khiến tester thích.
+> Tester này ưu tiên tốc độ/ít bước hơn cá nhân hoá — bước chẩn đoán của A, dù có giá trị thiết kế, bị coi là friction chứ không phải tính năng. Lựa chọn rõ ràng cho B củng cố tín hiệu "tốc độ thắng" đã thấy ở tester khác. Concern về C cho thấy AI chủ động cần cân nhắc tần suất, không chỉ nội dung đề xuất.
 
 **DECIDED — NEXT CHANGE**
 > Chốt chung ở [`group-feedback-synthesis.md`](group-feedback-synthesis.md).
 
 **STILL UNPROVEN** — Điều gì chưa thể kết luận từ một người?
-> Tester đánh giá option A và option B đều tốt, không thể đưa ra lựa chọn được vì thấy cách nào cũng có ưu điểm. Chính vì vậy mà nhóm không thể kết luận tester thích sự có mặt của AI hay không cần AI. 
+> Không rõ nếu bỏ bước chẩn đoán ở A, chất lượng/độ liên quan của giải thích có giảm không (trade-off giữa tốc độ và cá nhân hoá) — cần test riêng để so sánh.

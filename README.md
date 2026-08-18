@@ -2,8 +2,8 @@
 
 ## 1. Thông tin cá nhân và nhóm
 
-- **MHV:** 2A202601587
-- **Họ và tên:** Lê Hà Hải Vân
+- **MHV:** 2A202601645
+- **Họ và tên:** Lê Minh Khiêm
 - **Tên nhóm:** Bàn 1
 - **Ba thành viên:**
   1. Lê Hà Hải Vân — 2A202601587
