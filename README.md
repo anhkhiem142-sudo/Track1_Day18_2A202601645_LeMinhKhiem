@@ -29,9 +29,9 @@
 
 | Bản | Option | Mô tả ngắn | Link |
 |---|---|---|---|
-| Bản 1 | **A — Highlight-to-ask** | Bôi đen thuật ngữ → AI hỏi 1 câu chẩn đoán → chọn mức giải thích phù hợp → có thể chat hỏi thêm | [`prototype/a.html`](prototype/a.html) |
-| Bản 2 | **B — Sổ tay tĩnh** | Bấm nút mở sổ tay chứa định nghĩa viết sẵn, không có AI suy luận | [`prototype/b.html`](prototype/b.html) |
-| Bản 3 | **C — AI chủ động phát hiện** | Ở lại slide ≥15 giây không tương tác → AI chủ động đề xuất giải thích | [`prototype/c.html`](prototype/c.html) |
+| Bản 1 | **A — Highlight-to-ask** | Bôi đen thuật ngữ → AI hỏi 1 câu chẩn đoán → chọn mức giải thích phù hợp → có thể chat hỏi thêm | [`prototype/a.html`](prototype/option_a.html) |
+| Bản 2 | **B — Sổ tay tĩnh** | Bấm nút mở sổ tay chứa định nghĩa viết sẵn, không có AI suy luận | [`prototype/b.html`](prototype/option_b.html) |
+| Bản 3 | **C — AI chủ động phát hiện** | Ở lại slide ≥15 giây không tương tác → AI chủ động đề xuất giải thích | [`prototype/c.html`](prototype/option_c.html) |
 
 Chi tiết Human–AI Decision Table và Comparison Contract: xem [`three-option-design-sheet.md`](three-option-design-sheet.md). Link tổng hợp cách mở/test cả 3: xem [`prototype-link.md`](prototype-link.md).
 
